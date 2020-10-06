@@ -1,4 +1,4 @@
-Lana command line client REST API
+Lana command line client (for REST API)
 
 Requirements:
 I've build it using Python 3.7 but any modern python will do it.
