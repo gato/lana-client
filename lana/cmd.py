@@ -55,7 +55,7 @@ class LanaCmd(Cmd):
       print('Empty\n')
     for item in self.basket['items']:
       print('  {:6} {}'.format(item['product'], item['count']))
-    print("\nTotal basket cost is {:.2f}\n".format(self.basket['amount']))
+    print("\nTotal basket cost is {:.2f}€\n".format(self.basket['amount']))
 
   # reload basket from server
   def reload_basket(self):
