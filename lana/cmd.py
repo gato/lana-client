@@ -1,4 +1,3 @@
-#!python3
 import readline
 from cmd import Cmd
 from .client import LanaClient
@@ -10,13 +9,18 @@ class LanaCmd(Cmd):
     self.client = LanaClient(host, port)
     self.update_basket(None)
 
+  # set basket and update prompt to reflect it
   def update_basket(self, basket):
     self.basket = basket
     self.prompt = 'no basket > ' if self.basket == None else 'basket: {} > '.format(self.basket['id'])
 
+  # format error messages
   def error(self, msg):
     print('*** Error: {}\n'.format(msg))
 
+  # parse item parameters as 1 number
+  # if empty return 1 as default
+  # if no number or more than one parameter fail
   def parse_count(self, inp):
     inp = inp.strip()
     if inp == '':
@@ -27,7 +31,12 @@ class LanaCmd(Cmd):
       return int(inp)
     except ValueError:
       return None
+  
+  #override default behavior of enter reruning latest command
+  def emptyline(self):
+    pass
 
+  # add n products to basket
   def add_item(self, product_code, inp):
     if self.basket == None:
       return self.error('No basket selected')
@@ -39,6 +48,7 @@ class LanaCmd(Cmd):
       return self.error('adding {} to basket: {}'.format(product_code, err))
     print('{} {}S in basket\n'.format(count, product_code))
 
+  # print basket items and cost
   def print_basket(self):
     print('\nBasket content:')
     if len(self.basket['items']) == 0:
@@ -46,10 +56,19 @@ class LanaCmd(Cmd):
     for item in self.basket['items']:
       print('  {:6} {}'.format(item['product'], item['count']))
     print("\nTotal basket cost is {:.2f}\n".format(self.basket['amount']))
-      
+
+  # reload basket from server
+  def reload_basket(self):
+    if self.basket == None:
+      return self.error('No basket selected')
+    b, err =self.client.get_basket(self.basket['id'])
+    self.update_basket(b)
+    if err != None:
+      return self.error('refreshing basket: {}'.format(err))
+
   def do_new(self, inp):
     '''
-creates a new empty basket
+creates a new (empty) basket on the server and select it if creation succed
     '''        
     basket, err = self.client.create_basket()
     self.update_basket(basket)
@@ -59,25 +78,30 @@ creates a new empty basket
 
   def do_pen(self, inp):
     '''
-add PEN to basket
+add a PEN to basket. pen N will add N PENS to basket
     ''' 
     self.add_item('PEN', inp)
 
   def do_tshirt(self, inp):
     '''
-add TSHIRT to basket
+add TSHIRT to basket. tshirt N will add N TSHIRTS to basket
     ''' 
     self.add_item('TSHIRT', inp)
 
   def do_mug(self, inp):
     '''
-add MUG to basket
+add MUG to basket. mug N will add N MUGS to basket
     ''' 
     self.add_item('MUG', inp)     
   
   def do_use(self, inp):
     '''
-select an existing basket
+select an existing basket.
+
+usage:
+  use basket-uuid 
+
+has autocompletation just hit TAB once or twice depending if there is a single/multiple option
     ''' 
     if inp == '':
       return self.error('missing basket parameter')
@@ -98,17 +122,9 @@ select an existing basket
       baskets = list(filter(lambda x: x.startswith(text), baskets))
     return baskets
 
-  def reload_basket(self):
-    if self.basket == None:
-      return self.error('No basket selected')
-    b, err =self.client.get_basket(self.basket['id'])
-    self.update_basket(b)
-    if err != None:
-      return self.error('refreshing basket: {}'.format(err))
-
   def do_total(self, inp):
     '''
-get basket's total cost (with promotions already applied)
+list basket's content and total cost (with promotions already applied)
     '''      
     self.reload_basket()
     if self.basket == None:
@@ -117,7 +133,7 @@ get basket's total cost (with promotions already applied)
 
   def do_remove(self, inp):
     '''
-delete current basket
+remove current basket. ask for confirmation. no recovery after confirmation. so be careful
     '''
     self.reload_basket()
     if self.basket == None:
@@ -156,6 +172,3 @@ exit this awesome tool
     '''
     print('Bye')
     return True
-
-  def emptyline(self):
-    pass
