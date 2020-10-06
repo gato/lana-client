@@ -1,3 +1,4 @@
+#!python3
 import click
 
 from lana.cmd import LanaCmd
