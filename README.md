@@ -1,29 +1,33 @@
-Lana command line client (for REST API)
+# Lana command line client (for REST API)
 
 Requirements:
 I've build it using Python 3.7 but any modern python will do it.
 Virtual env is recommended but not mandatory.
 
-I've added a small installdeps.sh file that configures venv and install dependencies but this may not be needed at all if you are using a complete python distro likes anaconda.
-if you want to run in a virtual env environment run:
-```
+I've added a small lana.sh file that check if virtual env exists and if not it will try to create one and install dependencies. after that will run client inside the virtual env.
+
+if you want to create the virtual env and install dependencies by yourself run:
+
+```bash
 python3 -m venv .
 source ./bin/activate
 ```
+
 Then to install dependencies using pip run
-```
+
+```bash
 pip3 install -r requirements.txt
 ```
 
 After having all dependencies installed just run:
 
-```
+```bash
 python3 lana-client.py
 ```
 
 This asumes server is running on http://localhost:8080 to change this invoke script like this
 
-```
+```bash
 python3 lana-client.py --host=http://api.server.com --port:80
 ```
 
@@ -31,9 +35,7 @@ Please not that http:// or https:// are needed as i haven't created a specific p
 
 This will open a REPL like interfase that will look similar to this:
 
-```
-
-
+```text
 Lana Basket Client
 --
 
